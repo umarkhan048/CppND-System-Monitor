@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <string>
 #include <vector>
-
+#include <iostream>
 #include "linux_parser.h"
 
 using std::stof;
@@ -35,13 +35,13 @@ string LinuxParser::OperatingSystem() {
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::Kernel() {
-  string os, kernel;
+  string os, kernel, version;
   string line;
   std::ifstream stream(kProcDirectory + kVersionFilename);
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
-    linestream >> os >> kernel;
+    linestream >> os >> version >> kernel;
   }
   return kernel;
 }
@@ -67,7 +67,33 @@ vector<int> LinuxParser::Pids() {
 }
 
 // TODO: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { return 0.0; }
+float LinuxParser::MemoryUtilization() { 
+  
+  string line;
+  string key, value, unit;
+  string memTotal, memFree;
+  float memUtil;
+  std::ifstream filestream(kProcDirectory + kMeminfoFilename);
+  if (filestream.is_open()) {
+
+    while (!filestream.eof()) {
+       std::getline(filestream, line);
+       std::istringstream linestream(line);
+       linestream >> key >> value >> unit;
+       if (key == "MemTotal:") {
+       memTotal = value;
+       linestream.clear();
+       }
+       
+       if (key == "MemFree:") {
+       memFree = value;
+       linestream.clear();
+       }
+    }
+  }
+  memUtil = (std::stof(memTotal) - std::stof(memFree))/std::stof(memTotal);
+  return memUtil; 
+}
 
 // TODO: Read and return the system uptime
 long LinuxParser::UpTime() { return 0; }
