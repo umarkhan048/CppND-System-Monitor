@@ -10,6 +10,12 @@ using std::string;
 using std::to_string;
 using std::vector;
 
+#define UTIME     13
+#define STIME     14
+#define CUTIME    15
+#define CSTIME    16
+#define STARTTIME 21
+
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
   string line;
@@ -115,18 +121,21 @@ long LinuxParser::Jiffies() { return 0; }
 long LinuxParser::ActiveJiffies(int pid) { 
   
   std::ifstream stream(kProcDirectory + std::to_string(pid) + kStatFilename);
-  string line;
-  string lineElements[18];
+  string line, value;
+  vector<string> lineElements;
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
-    int i = 0;
-	while (linestream >> lineElements[i]) {
-      i++;
+	while (linestream >> value) {
+      lineElements.push_back(value);
     }
   }
-  std::cout << lineElements[10] << " " << lineElements[11] << "\n";
-  return 0; 
+  float utime = std::stof(lineElements[UTIME]);
+  float stime = std::stof(lineElements[STIME]);
+  float cutime = std::stof(lineElements[CUTIME]);
+  float cstime = std::stof(lineElements[CSTIME]);
+
+  return utime + stime + cutime + cstime; 
 }
 
 // TODO: Read and return the number of active jiffies for the system
@@ -216,9 +225,10 @@ string LinuxParser::Uid(int pid) {
   std::ifstream stream(kProcDirectory + std::to_string(pid) + kStatusFilename);
   if (stream.is_open()) {
     while (std::getline(stream, line)) {
+      std::replace(line.begin(), line.end(), ':', ' ');
       std::istringstream linestream(line);
       while (linestream >> key >> uid) {
-        if (key == "Uid:") {
+        if (key == "Uid") {
           uid = value;
         }
       }
@@ -233,14 +243,14 @@ string LinuxParser::User(int pid) {
   
   string uid = LinuxParser::Uid(pid);
   string line, key;
-  string user_short, x, value, user_full;
+  string value, x, user_full;
   std::ifstream stream(kPasswordPath);
   if (stream.is_open()) {
     while (std::getline(stream, line)) {
       std::replace(line.begin(), line.end(), ':', ' ');
       std::istringstream linestream(line);
-      while (linestream >> user_short >> x >> value) {
-        if (user_short == uid) {
+      while (linestream >> value >> x >> key) {
+        if (key == uid) {
           user_full = value;
         }
       }
@@ -251,4 +261,18 @@ string LinuxParser::User(int pid) {
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::UpTime(int pid) { 
+  
+  string line, value;
+  vector<string> lineElements;
+  std::ifstream stream(kProcDirectory + to_string(pid) + kStatFilename);
+  if (stream.is_open()) {
+    std::getline(stream, line);
+    std::istringstream linestream(line);
+    
+	while (linestream >> value) {
+      lineElements.push_back(value);
+    }
+  }
+  return std::stol(lineElements[21]); 
+}

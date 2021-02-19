@@ -22,7 +22,16 @@ int Process::Pid() {
 }
 
 // TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return 0; }
+float Process::CpuUtilization() { 
+  
+  float Hz = (float)sysconf(_SC_CLK_TCK);
+  auto processActiveJiffies = LinuxParser::ActiveJiffies(processPID_);
+  auto processUpTime = Process::UpTime();
+  auto systemUpTime = LinuxParser::UpTime();
+  auto seconds = systemUpTime - (processUpTime/Hz);
+  float cpu_usage =  (processActiveJiffies/Hz)/seconds;
+  return cpu_usage; 
+}
 
 // TODO: Return the command that generated this process
 string Process::Command() { 
@@ -42,7 +51,10 @@ string Process::User() {
 }
 
 // TODO: Return the age of this process (in seconds)
-long int Process::UpTime() { return 0; }
+long int Process::UpTime() { 
+  
+  return LinuxParser::UpTime(processPID_); 
+}
 
 // TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function

@@ -24,13 +24,18 @@ Processor& System::Cpu() {
 // TODO: Return a container composed of the system's processes
 vector<Process>& System::Processes() { 
   
+  vector<Process> tempProcesses;
   vector<int> pids = LinuxParser::Pids();
   for (int pid : pids) {
-    //std::cout << pid << "\n";
-    processes_.push_back(Process(pid));
+    Process proc(pid);
+    tempProcesses.push_back(proc);
   }
-  //std::sort(processes_.begin(), processes_.end());
-  //std::reverse(processes_.begin(), processes_.end());
+  //sorting out the process with the highest CPU utilization first
+  sort(tempProcesses.begin(), tempProcesses.end(),
+       []( Process& p1,  Process& p2) {
+         return (p2.CpuUtilization() < p1.CpuUtilization());
+       });
+  processes_ = tempProcesses;
   return processes_; 
 }
 
