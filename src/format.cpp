@@ -9,7 +9,7 @@ using std::string;
 // OUTPUT: HH:MM:SS
 // REMOVE: [[maybe_unused]] once you define the function
 string Format::ElapsedTime(long seconds) { 
-  int hour, min, sec;
+  int hour, min;
   hour = seconds/3600;
   seconds = seconds%3600;
   min = seconds/60;

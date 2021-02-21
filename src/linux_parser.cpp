@@ -125,12 +125,16 @@ long LinuxParser::ActiveJiffies(int pid) {
       lineElements.push_back(value);
     }
   }
-  float utime = std::stof(lineElements[UTIME]);
-  float stime = std::stof(lineElements[STIME]);
-  float cutime = std::stof(lineElements[CUTIME]);
-  float cstime = std::stof(lineElements[CSTIME]);
-
-  return utime + stime + cutime + cstime; 
+  if (!lineElements.empty()) {
+    float utime = std::stof(lineElements[UTIME]);
+    float stime = std::stof(lineElements[STIME]);
+    float cutime = std::stof(lineElements[CUTIME]);
+    float cstime = std::stof(lineElements[CSTIME]);
+  	return utime + stime + cutime + cstime;
+  }
+  else {
+    return 0;
+  }
 }
 
 // TODO: Read and return the number of active jiffies for the system
