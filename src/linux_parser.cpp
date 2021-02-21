@@ -10,11 +10,6 @@ using std::string;
 using std::to_string;
 using std::vector;
 
-#define UTIME     13
-#define STIME     14
-#define CUTIME    15
-#define CSTIME    16
-#define STARTTIME 21
 
 // DONE: An example of how to read data from the filesystem
 string LinuxParser::OperatingSystem() {
@@ -114,7 +109,7 @@ long LinuxParser::UpTime() {
 }
 
 // TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
+//long LinuxParser::Jiffies() { return 0; }
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
@@ -139,13 +134,40 @@ long LinuxParser::ActiveJiffies(int pid) {
 }
 
 // TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+long LinuxParser::ActiveJiffies() { 
+  
+  vector<long> cpuStats = CpuUtilization();
+  // user + nice + system + irq + softirq + steal
+   return cpuStats[USER] + cpuStats[NICE] + cpuStats[SYS] + cpuStats[IRQ] 
+     + cpuStats[SOFTIRQ] + cpuStats[STEAL];
+}
 
 // TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
+long LinuxParser::IdleJiffies() { 
+  
+  vector<long> cpuStats = CpuUtilization();
+  return cpuStats[IDLE] + cpuStats[IOWAIT]; 
+}
 
 // TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
+vector<long> LinuxParser::CpuUtilization() { 
+  
+  string key, line;
+  string user, nice, system, idle, iowait, irq, softirq, 
+       steal, guest, guest_nice;
+  std::ifstream stream(kProcDirectory + kStatFilename);
+  vector<long> processor_stat;
+  if (stream.is_open()) {
+    std::getline(stream, line);
+    std::istringstream linestream(line);
+    linestream >> key >> user >> nice >> system >> idle >> iowait >>
+          irq >> softirq >> steal >> guest >> guest_nice;
+  }
+  processor_stat = {stol(user), stol(nice), stol(system), stol(idle), 
+                   stol(iowait), stol(irq), stol(softirq), stol(steal), 
+                   stol(guest), stol(guest_nice)};
+  return processor_stat; 
+}
 
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() { 
@@ -274,5 +296,5 @@ long LinuxParser::UpTime(int pid) {
       lineElements.push_back(value);
     }
   }
-  return std::stol(lineElements[21]); 
+  return std::stol(lineElements[STARTTIME]); 
 }

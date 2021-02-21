@@ -17,6 +17,25 @@ const std::string kMeminfoFilename{"/meminfo"};
 const std::string kVersionFilename{"/version"};
 const std::string kOSPath{"/etc/os-release"};
 const std::string kPasswordPath{"/etc/passwd"};
+  
+//Macros for process times
+#define UTIME     13
+#define STIME     14
+#define CUTIME    15
+#define CSTIME    16
+#define STARTTIME 21
+  
+//Macros for cpu stats
+#define USER	    0
+#define NICE        1
+#define SYS         2
+#define IDLE        3
+#define IOWAIT      4
+#define IRQ         5
+#define SOFTIRQ     6
+#define STEAL       7
+#define GUESt       8
+#define GUEST_NICE  9
 
 // System
 float MemoryUtilization();
@@ -40,7 +59,7 @@ enum CPUStates {
   kGuest_,
   kGuestNice_
 };
-std::vector<std::string> CpuUtilization();
+std::vector<long> CpuUtilization();
 long Jiffies();
 long ActiveJiffies();
 long ActiveJiffies(int pid);

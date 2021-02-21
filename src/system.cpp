@@ -17,7 +17,8 @@ using std::vector;
 
 // TODO: Return the system's CPU
 Processor& System::Cpu() {
-   
+  
+  //Processor processor;
   return cpu_; 
 }
 
@@ -32,8 +33,8 @@ vector<Process>& System::Processes() {
   }
   //sorting out the process with the highest CPU utilization first
   sort(tempProcesses.begin(), tempProcesses.end(),
-       []( Process& p1,  Process& p2) {
-         return (p2.CpuUtilization() < p1.CpuUtilization());
+       [](Process& p1, Process& p2) {
+         return (p2 < p1);
        });
   processes_ = tempProcesses;
   return processes_; 
