@@ -30,7 +30,7 @@ float Processor::Utilization() {
     return 0.0f;
   }
   else {
-    float deltaActiveTime = (float)(deltaTotal - deltaIdle);
+    float deltaActiveTime = static_cast<float>(deltaTotal - deltaIdle);
   	float cpuUsage = deltaActiveTime/deltaTotal;
   	return cpuUsage;
   }
